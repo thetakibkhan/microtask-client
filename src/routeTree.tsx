@@ -6,6 +6,7 @@ import WorkerDashboardPage from '@/pages/WorkerDashboard'
 import BuyerDashboardPage from '@/pages/BuyerDashboard'
 import AdminDashboardPage from '@/pages/AdminDashboard'
 import NotFoundPage from '@/pages/NotFound'
+import PrivateRoute from '@/routes/PrivateRoute'
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -33,19 +34,31 @@ const registerRoute = createRoute({
 const workerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/worker',
-  component: WorkerDashboardPage,
+  component: () => (
+    <PrivateRoute>
+      <WorkerDashboardPage />
+    </PrivateRoute>
+  ),
 })
 
 const buyerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/buyer',
-  component: BuyerDashboardPage,
+  component: () => (
+    <PrivateRoute>
+      <BuyerDashboardPage />
+    </PrivateRoute>
+  ),
 })
 
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
-  component: AdminDashboardPage,
+  component: () => (
+    <PrivateRoute>
+      <AdminDashboardPage />
+    </PrivateRoute>
+  ),
 })
 
 export const routeTree = rootRoute.addChildren([

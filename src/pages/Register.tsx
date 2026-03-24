@@ -1,10 +1,11 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import { Zap, ArrowRight, Users, Briefcase } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useState } from 'react'
+import { useAuth } from '@/providers/AuthProvider'
 
 type PublicRole = 'worker' | 'buyer'
 
@@ -14,7 +15,42 @@ const roleOptions: { key: PublicRole; icon: React.ElementType; label: string; de
 ]
 
 const RegisterPage = () => {
+  const { registerWithEmail } = useAuth()
+  const navigate = useNavigate()
+
   const [role, setRole] = useState<PublicRole>('worker')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const name = `${firstName} ${lastName}`.trim()
+      await registerWithEmail(name, email, password)
+      // After registration, redirect based on role
+      navigate({ to: role === 'worker' ? '/worker' : '/buyer' })
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('email-already-in-use')) {
+        setError('An account with this email already exists.')
+      } else {
+        setError('Registration failed. Please try again.')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -58,6 +94,7 @@ const RegisterPage = () => {
             {roleOptions.map((r) => (
               <button
                 key={r.key}
+                type="button"
                 onClick={() => setRole(r.key)}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
                   role === r.key ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'
@@ -70,30 +107,68 @@ const RegisterPage = () => {
             ))}
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          {error && (
+            <div className="mb-4 px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+              {error}
+            </div>
+          )}
+
+          <form className="space-y-4" onSubmit={handleRegister}>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="first">First name</Label>
-                <Input id="first" placeholder="John" className="h-11 rounded-xl" />
+                <Input
+                  id="first"
+                  placeholder="John"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  className="h-11 rounded-xl"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="last">Last name</Label>
-                <Input id="last" placeholder="Doe" className="h-11 rounded-xl" />
+                <Input
+                  id="last"
+                  placeholder="Doe"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  className="h-11 rounded-xl"
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="reg-email">Email</Label>
-              <Input id="reg-email" type="email" placeholder="you@example.com" className="h-11 rounded-xl" />
+              <Input
+                id="reg-email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-11 rounded-xl"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="reg-password">Password</Label>
-              <Input id="reg-password" type="password" placeholder="Min 8 characters" className="h-11 rounded-xl" />
+              <Input
+                id="reg-password"
+                type="password"
+                placeholder="Min 8 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="h-11 rounded-xl"
+              />
             </div>
-            <Link to={role === 'worker' ? '/worker' : '/buyer'}>
-              <Button className="w-full h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold mt-2">
-                Create Account <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </Link>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold mt-2"
+            >
+              {loading ? 'Creating account...' : <>Create Account <ArrowRight className="ml-2 w-4 h-4" /></>}
+            </Button>
           </form>
 
           <p className="text-center text-xs text-muted-foreground mt-6">

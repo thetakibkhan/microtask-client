@@ -1,5 +1,5 @@
 {
-  "name": "micro-task-earning-platform",
+  "name": "client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,8 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/react-router": "^1.168.3",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.0.1",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "recharts": "^3.8.0",
+    "swiper": "^12.1.2",
+    "tailwindcss": "^4.2.2",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

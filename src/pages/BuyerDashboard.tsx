@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import DashboardLayout from '@/components/DashboardLayout'
 import {
   Plus, DollarSign, Users, ClipboardList, CheckCircle2,
-  Clock, XCircle, ArrowUpRight, ExternalLink, CreditCard, Eye
+  XCircle, ArrowUpRight, ExternalLink, CreditCard, Eye
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

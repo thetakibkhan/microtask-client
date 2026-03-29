@@ -12,7 +12,7 @@ import type { User } from 'firebase/auth'
 import { auth } from '@/firebase/firebase.config'
 import type { Role } from '@/types'
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL as string | undefined
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || undefined
 
 function getRoleKey(uid: string) {
   return `taskOrbit_role_${uid}`

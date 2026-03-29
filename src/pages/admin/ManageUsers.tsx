@@ -31,8 +31,8 @@ const ManageUsers = ({ users, onRoleChange, onRemove }: ManageUsersProps) => (
               <tr className="text-xs text-muted-foreground font-medium">
                 <th className="text-left px-6 py-4">User</th>
                 <th className="text-left px-6 py-4">Role</th>
-                <th className="text-left px-6 py-4">Coins</th>
-                <th className="text-left px-6 py-4">Update Role</th>
+                <th className="text-left px-6 py-4 hidden sm:table-cell">Coins</th>
+                <th className="text-left px-6 py-4 hidden md:table-cell">Update Role</th>
                 <th className="text-right px-6 py-4">Action</th>
               </tr>
             </thead>
@@ -57,10 +57,10 @@ const ManageUsers = ({ users, onRoleChange, onRemove }: ManageUsersProps) => (
                       {u.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-foreground tabular-nums">
+                  <td className="px-6 py-4 text-sm font-semibold text-foreground tabular-nums hidden sm:table-cell">
                     🪙 {u.coins}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 hidden md:table-cell">
                     <select
                       value={u.role}
                       onChange={(e) => onRoleChange(u.id, e.target.value as Role)}

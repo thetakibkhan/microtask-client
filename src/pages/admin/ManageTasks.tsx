@@ -34,10 +34,10 @@ const ManageTasks = ({ tasks, onDelete }: ManageTasksProps) => (
             <thead className="border-b border-border">
               <tr className="text-xs text-muted-foreground font-medium">
                 <th className="text-left px-6 py-4">Task</th>
-                <th className="text-left px-6 py-4">Buyer</th>
-                <th className="text-left px-6 py-4">Workers</th>
-                <th className="text-left px-6 py-4">Pay / slot</th>
-                <th className="text-left px-6 py-4">Deadline</th>
+                <th className="text-left px-6 py-4 hidden md:table-cell">Buyer</th>
+                <th className="text-left px-6 py-4 hidden sm:table-cell">Workers</th>
+                <th className="text-left px-6 py-4 hidden lg:table-cell">Pay / slot</th>
+                <th className="text-left px-6 py-4 hidden lg:table-cell">Deadline</th>
                 <th className="text-left px-6 py-4">Status</th>
                 <th className="text-right px-6 py-4">Action</th>
               </tr>
@@ -48,17 +48,17 @@ const ManageTasks = ({ tasks, onDelete }: ManageTasksProps) => (
                   <td className="px-6 py-4">
                     <p className="text-sm font-medium text-foreground max-w-xs truncate">{t.title}</p>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 hidden md:table-cell">
                     <p className="text-sm text-foreground">{t.buyerName}</p>
                     <p className="text-xs text-muted-foreground">{t.buyerEmail}</p>
                   </td>
-                  <td className="px-6 py-4 text-sm text-foreground tabular-nums">
+                  <td className="px-6 py-4 text-sm text-foreground tabular-nums hidden sm:table-cell">
                     {t.submissionsReceived}/{t.requiredWorkers + t.submissionsReceived}
                   </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-success tabular-nums">
+                  <td className="px-6 py-4 text-sm font-semibold text-success tabular-nums hidden lg:table-cell">
                     {t.payableAmount} coins
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">{t.completionDate}</td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground hidden lg:table-cell">{t.completionDate}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[t.status]}`}>
                       {statusLabel[t.status]}

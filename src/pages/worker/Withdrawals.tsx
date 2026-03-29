@@ -179,10 +179,10 @@ const Withdrawals = ({ coinBalance, withdrawals, onWithdraw }: WithdrawalsProps)
               <thead>
                 <tr className="text-xs text-muted-foreground font-medium border-b border-border">
                   <th className="text-left px-6 py-3">Payment System</th>
-                  <th className="text-left px-6 py-3">Account</th>
+                  <th className="text-left px-6 py-3 hidden sm:table-cell">Account</th>
                   <th className="text-left px-6 py-3">Coins</th>
-                  <th className="text-left px-6 py-3">Amount</th>
-                  <th className="text-left px-6 py-3">Date</th>
+                  <th className="text-left px-6 py-3 hidden sm:table-cell">Amount</th>
+                  <th className="text-left px-6 py-3 hidden md:table-cell">Date</th>
                   <th className="text-right px-6 py-3">Status</th>
                 </tr>
               </thead>
@@ -190,10 +190,10 @@ const Withdrawals = ({ coinBalance, withdrawals, onWithdraw }: WithdrawalsProps)
                 {sorted.map((w) => (
                   <tr key={w.id} className="border-t border-border hover:bg-accent/40 transition-colors duration-200">
                     <td className="px-6 py-4 text-sm font-medium text-foreground">{w.paymentSystem}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{w.accountNumber}</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground font-mono hidden sm:table-cell">{w.accountNumber}</td>
                     <td className="px-6 py-4 text-sm text-foreground tabular-nums">🪙 {w.withdrawalCoin}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-success tabular-nums">${w.withdrawalAmount}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{w.withdrawDate}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-success tabular-nums hidden sm:table-cell">${w.withdrawalAmount}</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground hidden md:table-cell">{w.withdrawDate}</td>
                     <td className="px-6 py-4 text-right">
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[w.status]}`}>
                         {statusLabel[w.status]}

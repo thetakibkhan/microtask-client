@@ -65,11 +65,11 @@ const AdminHome = ({ users, tasks, withdrawals, onApproveWithdrawal }: AdminHome
               <thead>
                 <tr className="text-xs text-muted-foreground font-medium">
                   <th className="text-left py-3 pr-4">Worker</th>
-                  <th className="text-left py-3 pr-4">Payment System</th>
-                  <th className="text-left py-3 pr-4">Account</th>
+                  <th className="text-left py-3 pr-4 hidden sm:table-cell">Payment System</th>
+                  <th className="text-left py-3 pr-4 hidden md:table-cell">Account</th>
                   <th className="text-left py-3 pr-4">Coins</th>
-                  <th className="text-left py-3 pr-4">Amount</th>
-                  <th className="text-left py-3 pr-4">Date</th>
+                  <th className="text-left py-3 pr-4 hidden sm:table-cell">Amount</th>
+                  <th className="text-left py-3 pr-4 hidden lg:table-cell">Date</th>
                   <th className="text-right py-3">Action</th>
                 </tr>
               </thead>
@@ -82,11 +82,11 @@ const AdminHome = ({ users, tasks, withdrawals, onApproveWithdrawal }: AdminHome
                         <p className="text-xs text-muted-foreground">{w.workerEmail}</p>
                       </div>
                     </td>
-                    <td className="py-3 pr-4 text-sm text-foreground">{w.paymentSystem}</td>
-                    <td className="py-3 pr-4 text-sm text-muted-foreground font-mono">{w.accountNumber}</td>
+                    <td className="py-3 pr-4 text-sm text-foreground hidden sm:table-cell">{w.paymentSystem}</td>
+                    <td className="py-3 pr-4 text-sm text-muted-foreground font-mono hidden md:table-cell">{w.accountNumber}</td>
                     <td className="py-3 pr-4 text-sm font-semibold text-foreground tabular-nums">🪙 {w.withdrawalCoin}</td>
-                    <td className="py-3 pr-4 text-sm font-semibold text-success tabular-nums">${w.withdrawalAmount}</td>
-                    <td className="py-3 pr-4 text-sm text-muted-foreground">{w.withdrawDate}</td>
+                    <td className="py-3 pr-4 text-sm font-semibold text-success tabular-nums hidden sm:table-cell">${w.withdrawalAmount}</td>
+                    <td className="py-3 pr-4 text-sm text-muted-foreground hidden lg:table-cell">{w.withdrawDate}</td>
                     <td className="py-3 text-right">
                       <button
                         onClick={() => onApproveWithdrawal(w.id)}

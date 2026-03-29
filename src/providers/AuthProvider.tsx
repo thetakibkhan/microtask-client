@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -39,19 +39,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<Role | null>(null)
   const [loading, setLoading] = useState(true)
+  const isRegistering = useRef(false)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser)
-      if (currentUser) {
+      if (currentUser && !isRegistering.current) {
         try {
           const resolvedRole = await exchangeToken(currentUser)
           setRole(resolvedRole)
         } catch {
-          // User exists in Firebase but not yet in DB (mid-registration)
           setRole(null)
         }
-      } else {
+      } else if (!currentUser) {
         localStorage.removeItem(TOKEN_KEY)
         setRole(null)
       }
@@ -67,6 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     role: Role,
     photoURL?: string,
   ): Promise<User> => {
+    isRegistering.current = true
     const result = await createUserWithEmailAndPassword(auth, email, password)
     await updateProfile(result.user, { displayName: name, photoURL: photoURL ?? null })
 
@@ -83,6 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem(TOKEN_KEY, res.data.token)
     setRole(res.data.role)
     setUser(result.user)
+    isRegistering.current = false
     return result.user
   }
 

@@ -38,11 +38,24 @@ const roleColors: Record<Role, string> = {
 interface DashboardLayoutProps {
   role: Role
   children: React.ReactNode
+  activeIndex?: number
+  onNavigate?: (index: number) => void
 }
 
-const DashboardLayout = ({ role, children }: DashboardLayoutProps) => {
+const DashboardLayout = ({ role, children, activeIndex, onNavigate }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeIdx, setActiveIdx] = useState(0)
+  const [internalIdx, setInternalIdx] = useState(0)
+
+  const activeIdx = activeIndex !== undefined ? activeIndex : internalIdx
+
+  const handleNav = (i: number) => {
+    if (onNavigate) {
+      onNavigate(i)
+    } else {
+      setInternalIdx(i)
+    }
+    setSidebarOpen(false)
+  }
 
   const items = navItems[role]
 
@@ -109,7 +122,7 @@ const DashboardLayout = ({ role, children }: DashboardLayoutProps) => {
             {items.map((item, i) => (
               <button
                 key={item.label}
-                onClick={() => { setActiveIdx(i); setSidebarOpen(false) }}
+                onClick={() => handleNav(i)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                   activeIdx === i
                     ? 'bg-primary/10 text-primary border border-primary/20'

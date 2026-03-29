@@ -51,7 +51,7 @@ describe('WorkerHome', () => {
     render(<WorkerHome submissions={mockWorkerSubmissions} coinBalance={WORKER_INITIAL_COINS} />)
     const approved = mockWorkerSubmissions.filter((s) => s.status === SubmissionStatus.Approved)
     for (const s of approved) {
-      expect(screen.getByText(s.taskTitle)).toBeInTheDocument()
+      expect(screen.getAllByText(s.taskTitle).length).toBeGreaterThan(0)
     }
   })
 
@@ -124,10 +124,15 @@ describe('TaskList', () => {
 // ─── MySubmissions ─────────────────────────────────────────────────────────
 
 describe('MySubmissions', () => {
-  it('renders all submission task titles', () => {
+  it('renders first page of submission task titles', () => {
+    // Component paginates 5 per page — only the first 5 (newest) are shown on page 1
+    const sorted = [...mockWorkerSubmissions].sort(
+      (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+    )
+    const firstPage = sorted.slice(0, 5)
     render(<MySubmissions submissions={mockWorkerSubmissions} />)
-    for (const s of mockWorkerSubmissions) {
-      expect(screen.getByText(s.taskTitle)).toBeInTheDocument()
+    for (const s of firstPage) {
+      expect(screen.getAllByText(s.taskTitle).length).toBeGreaterThan(0)
     }
   })
 

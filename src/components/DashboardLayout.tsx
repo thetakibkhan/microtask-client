@@ -4,7 +4,8 @@ import {
   Zap, Home, ListTodo, Upload, CreditCard, Users,
   ClipboardList, LogOut, Menu, X, Bell, Plus, History
 } from 'lucide-react'
-import type { Role, NavItem } from '@/types'
+import type { Role, NavItem, AppNotification } from '@/types'
+import NotificationPanel from '@/components/NotificationPanel'
 
 const navItems: Record<Role, NavItem[]> = {
   worker: [
@@ -40,11 +41,27 @@ interface DashboardLayoutProps {
   children: React.ReactNode
   activeIndex?: number
   onNavigate?: (index: number) => void
+  notifications?: AppNotification[]
+  onMarkAllRead?: () => void
+  coinBalance?: number
+  userName?: string
 }
 
-const DashboardLayout = ({ role, children, activeIndex, onNavigate }: DashboardLayoutProps) => {
+const DashboardLayout = ({
+  role,
+  children,
+  activeIndex,
+  onNavigate,
+  notifications = [],
+  onMarkAllRead,
+  coinBalance,
+  userName = 'John Doe',
+}: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [internalIdx, setInternalIdx] = useState(0)
+  const [notifOpen, setNotifOpen] = useState(false)
+
+  const unreadCount = notifications.filter((n) => !n.read).length
 
   const activeIdx = activeIndex !== undefined ? activeIndex : internalIdx
 
@@ -79,20 +96,45 @@ const DashboardLayout = ({ role, children, activeIndex, onNavigate }: DashboardL
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-success/10 border border-success/20 text-sm font-semibold text-success">
-            🪙 <span className="tabular-nums">1,250</span>
-          </div>
+          {coinBalance !== undefined && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-success/10 border border-success/20 text-sm font-semibold text-success">
+              🪙 <span className="tabular-nums">{coinBalance.toLocaleString()}</span>
+            </div>
+          )}
           <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/30 ring-2 ring-primary/10">
             <img src="https://i.pravatar.cc/150?img=12" alt="Profile" className="w-full h-full object-cover" />
           </div>
           <span className={`hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${roleColors[role]}`}>
             {roleLabels[role]}
           </span>
-          <span className="hidden md:block text-sm font-medium text-foreground">John Doe</span>
-          <button className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive ring-2 ring-card" />
-          </button>
+          <span className="hidden md:block text-sm font-medium text-foreground">{userName}</span>
+
+          {/* Notification bell */}
+          <div className="relative">
+            <button
+              onClick={() => setNotifOpen((prev) => !prev)}
+              className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200"
+              aria-label="Notifications"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 min-w-[16px] h-4 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center px-0.5 ring-2 ring-card">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {notifOpen && (
+              <NotificationPanel
+                notifications={notifications}
+                onMarkAllRead={() => {
+                  onMarkAllRead?.()
+                  setNotifOpen(false)
+                }}
+                onClose={() => setNotifOpen(false)}
+              />
+            )}
+          </div>
         </div>
       </header>
 

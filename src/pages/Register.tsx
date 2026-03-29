@@ -40,7 +40,7 @@ const RegisterPage = () => {
     setLoading(true)
     try {
       const name = `${firstName} ${lastName}`.trim()
-      await registerWithEmail(name, email, password, photoURL || undefined)
+      await registerWithEmail(name, email, password, role, photoURL || undefined)
       // After registration, redirect based on role
       navigate({ to: role === 'worker' ? '/worker' : '/buyer' })
     } catch (err) {

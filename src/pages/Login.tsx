@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/providers/AuthProvider'
 
+const roleDashboard = { worker: '/worker', buyer: '/buyer', admin: '/admin' } as const
+
 const LoginPage = () => {
-  const { loginWithEmail, loginWithGoogle } = useAuth()
+  const { loginWithEmail, loginWithGoogle, role } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -22,7 +24,7 @@ const LoginPage = () => {
     setLoading(true)
     try {
       await loginWithEmail(email, password)
-      navigate({ to: '/worker' })
+      navigate({ to: role ? roleDashboard[role] : '/worker' })
     } catch {
       setError('Invalid email or password. Please try again.')
     } finally {
@@ -35,7 +37,7 @@ const LoginPage = () => {
     setLoading(true)
     try {
       await loginWithGoogle()
-      navigate({ to: '/worker' })
+      navigate({ to: role ? roleDashboard[role] : '/worker' })
     } catch {
       setError('Google sign-in failed. Please try again.')
     } finally {

@@ -58,7 +58,7 @@ const DashboardLayout = ({
   coinBalance,
   userName = 'John Doe',
 }: DashboardLayoutProps) => {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [internalIdx, setInternalIdx] = useState(0)
   const [notifOpen, setNotifOpen] = useState(false)
@@ -184,11 +184,12 @@ const DashboardLayout = ({
           </nav>
 
           <div className="p-3 border-t border-border">
-            <Link to="/">
-              <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200">
-                <LogOut className="w-4 h-4" /> Sign Out
-              </button>
-            </Link>
+            <button
+              onClick={() => { void logout() }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+            >
+              <LogOut className="w-4 h-4" /> Sign Out
+            </button>
           </div>
         </aside>
 

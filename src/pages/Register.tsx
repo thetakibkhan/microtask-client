@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/providers/AuthProvider'
+import ImageUploadField from '@/components/ImageUploadField'
 
 type PublicRole = 'worker' | 'buyer'
 
@@ -23,6 +24,7 @@ const RegisterPage = () => {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [photoURL, setPhotoURL] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -38,7 +40,7 @@ const RegisterPage = () => {
     setLoading(true)
     try {
       const name = `${firstName} ${lastName}`.trim()
-      await registerWithEmail(name, email, password)
+      await registerWithEmail(name, email, password, photoURL || undefined)
       // After registration, redirect based on role
       navigate({ to: role === 'worker' ? '/worker' : '/buyer' })
     } catch (err) {
@@ -162,6 +164,12 @@ const RegisterPage = () => {
                 className="h-11 rounded-xl"
               />
             </div>
+            <ImageUploadField
+              label="Profile Photo (optional)"
+              value={photoURL}
+              onChange={setPhotoURL}
+            />
+
             <Button
               type="submit"
               disabled={loading}

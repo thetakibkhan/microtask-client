@@ -118,6 +118,7 @@ export interface BuyerTaskFull {
   id: string
   title: string
   detail: string
+  imageUrl: string
   requiredWorkers: number
   payableAmount: number
   submissionInfo: string
@@ -173,6 +174,7 @@ export interface AvailableTask {
   id: string
   title: string
   detail: string
+  imageUrl: string
   buyerName: string
   buyerEmail: string
   requiredWorkers: number

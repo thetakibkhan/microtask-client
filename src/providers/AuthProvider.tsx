@@ -14,7 +14,7 @@ import { auth } from '@/firebase/firebase.config'
 interface AuthContextType {
   user: User | null
   loading: boolean
-  registerWithEmail: (name: string, email: string, password: string) => Promise<User>
+  registerWithEmail: (name: string, email: string, password: string, photoURL?: string) => Promise<User>
   loginWithEmail: (email: string, password: string) => Promise<User>
   loginWithGoogle: () => Promise<User>
   logout: () => Promise<void>
@@ -34,9 +34,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return unsubscribe
   }, [])
 
-  const registerWithEmail = async (name: string, email: string, password: string): Promise<User> => {
+  const registerWithEmail = async (name: string, email: string, password: string, photoURL?: string): Promise<User> => {
     const result = await createUserWithEmailAndPassword(auth, email, password)
-    await updateProfile(result.user, { displayName: name })
+    await updateProfile(result.user, { displayName: name, photoURL: photoURL ?? null })
     setUser(result.user)
     return result.user
   }

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import ImageUploadField from '@/components/ImageUploadField'
 import type { BuyerTaskFull } from '@/types'
 import { TaskStatus } from '@/types'
 
@@ -17,6 +18,7 @@ interface AddTaskProps {
 const AddTask = ({ coinBalance, onTaskCreated, onGoToPurchase }: AddTaskProps) => {
   const [title, setTitle] = useState('')
   const [detail, setDetail] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
   const [requiredWorkers, setRequiredWorkers] = useState('')
   const [payableAmount, setPayableAmount] = useState('')
   const [submissionInfo, setSubmissionInfo] = useState('')
@@ -40,6 +42,7 @@ const AddTask = ({ coinBalance, onTaskCreated, onGoToPurchase }: AddTaskProps) =
       id: `t_${Date.now()}`,
       title,
       detail,
+      imageUrl,
       requiredWorkers: workers,
       payableAmount: amount,
       submissionInfo,
@@ -52,6 +55,7 @@ const AddTask = ({ coinBalance, onTaskCreated, onGoToPurchase }: AddTaskProps) =
 
     setTitle('')
     setDetail('')
+    setImageUrl('')
     setRequiredWorkers('')
     setPayableAmount('')
     setSubmissionInfo('')
@@ -106,6 +110,12 @@ const AddTask = ({ coinBalance, onTaskCreated, onGoToPurchase }: AddTaskProps) =
               className="rounded-xl resize-none"
             />
           </div>
+
+          <ImageUploadField
+            label="Task Image (optional)"
+            value={imageUrl}
+            onChange={setImageUrl}
+          />
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">

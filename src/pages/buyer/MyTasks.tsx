@@ -68,6 +68,9 @@ const MyTasks = ({ tasks, onUpdate, onDelete }: MyTasksProps) => {
             return (
               <div key={task.id} className="p-5 bg-card rounded-2xl orbit-shadow border border-border hover:border-primary/20 transition-all duration-200">
                 <div className="flex items-start justify-between gap-4">
+                  {task.imageUrl && (
+                    <img src={task.imageUrl} alt={task.title} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" />
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <h3 className="font-semibold text-foreground truncate">{task.title}</h3>

@@ -59,8 +59,12 @@ const TaskList = ({ tasks, onSubmit }: TaskListProps) => {
           {available.map((task) => (
             <div
               key={task.id}
-              className="p-5 bg-card rounded-2xl orbit-shadow border border-border hover:border-primary/20 transition-all duration-200 flex flex-col"
+              className="bg-card rounded-2xl orbit-shadow border border-border hover:border-primary/20 transition-all duration-200 flex flex-col overflow-hidden"
             >
+              {task.imageUrl && (
+                <img src={task.imageUrl} alt={task.title} className="w-full h-36 object-cover" />
+              )}
+              <div className="p-5 flex flex-col flex-1">
               <h3 className="font-semibold text-foreground mb-2 line-clamp-2">{task.title}</h3>
               <p className="text-sm text-muted-foreground line-clamp-3 mb-4 flex-1">{task.detail}</p>
 
@@ -90,6 +94,7 @@ const TaskList = ({ tasks, onSubmit }: TaskListProps) => {
               >
                 <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> View Details
               </Button>
+              </div>
             </div>
           ))}
         </div>
@@ -114,6 +119,9 @@ const TaskList = ({ tasks, onSubmit }: TaskListProps) => {
             </div>
           ) : (
             <div className="space-y-4">
+              {viewTask.imageUrl && (
+                <img src={viewTask.imageUrl} alt={viewTask.title} className="w-full h-40 object-cover rounded-xl" />
+              )}
               <div className="space-y-2 text-sm">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                   <span className="text-muted-foreground">Buyer</span>

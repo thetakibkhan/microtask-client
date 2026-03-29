@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { ClipboardList, DollarSign, Users, CheckCircle2, XCircle, Eye } from 'lucide-react'
 import { SubmissionStatus } from '@/types'
 import type { WorkerSubmission } from '@/types'
-import { mockTasks, mockSubmissions } from '@/mocks/buyer'
+import { mockTasks } from '@/mocks/buyer'
 import Modal from '@/components/ui/modal'
 
 interface BuyerHomeProps {

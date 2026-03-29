@@ -65,9 +65,6 @@ const MyTasks = ({ tasks, onUpdate, onDelete }: MyTasksProps) => {
       ) : (
         <div className="space-y-4">
           {sorted.map((task) => {
-            const remaining = task.requiredWorkers - task.submissionsReceived
-            const refundCoins = remaining * task.payableAmount
-
             return (
               <div key={task.id} className="p-5 bg-card rounded-2xl orbit-shadow border border-border hover:border-primary/20 transition-all duration-200">
                 <div className="flex items-start justify-between gap-4">

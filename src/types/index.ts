@@ -1,22 +1,25 @@
 export type Role = 'worker' | 'buyer' | 'admin'
 
-export enum SubmissionStatus {
-  Pending = 'pending',
-  Approved = 'approved',
-  Rejected = 'rejected',
-}
+export const SubmissionStatus = {
+  Pending: 'pending',
+  Approved: 'approved',
+  Rejected: 'rejected',
+} as const
+export type SubmissionStatus = (typeof SubmissionStatus)[keyof typeof SubmissionStatus]
 
-export enum TaskStatus {
-  Active = 'active',
-  Completed = 'completed',
-  Paused = 'paused',
-}
+export const TaskStatus = {
+  Active: 'active',
+  Completed: 'completed',
+  Paused: 'paused',
+} as const
+export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus]
 
-export enum PaymentType {
-  Purchase = 'purchase',
-  Refund = 'refund',
-  TaskPayment = 'task_payment',
-}
+export const PaymentType = {
+  Purchase: 'purchase',
+  Refund: 'refund',
+  TaskPayment: 'task_payment',
+} as const
+export type PaymentType = (typeof PaymentType)[keyof typeof PaymentType]
 
 export interface NavItem {
   label: string

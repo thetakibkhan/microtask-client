@@ -45,8 +45,8 @@ const PaymentHistory = ({ payments }: PaymentHistoryProps) => {
                 <tr className="text-xs text-muted-foreground font-medium">
                   <th className="text-left px-6 py-4">Type</th>
                   <th className="text-left px-6 py-4">Description</th>
-                  <th className="text-left px-6 py-4">Date</th>
-                  <th className="text-right px-6 py-4">Amount</th>
+                  <th className="text-left px-6 py-4 hidden sm:table-cell">Date</th>
+                  <th className="text-right px-6 py-4 hidden md:table-cell">Amount</th>
                   <th className="text-right px-6 py-4">Coins</th>
                 </tr>
               </thead>
@@ -59,9 +59,9 @@ const PaymentHistory = ({ payments }: PaymentHistoryProps) => {
                         {typeLabel[p.type]}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-foreground">{p.description}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{p.date}</td>
-                    <td className="px-6 py-4 text-sm text-right font-semibold tabular-nums">
+                    <td className="px-6 py-4 text-sm text-foreground max-w-[180px] truncate">{p.description}</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground hidden sm:table-cell">{p.date}</td>
+                    <td className="px-6 py-4 text-sm text-right font-semibold tabular-nums hidden md:table-cell">
                       {p.amount > 0 ? (
                         <span className="text-foreground">${p.amount}</span>
                       ) : (

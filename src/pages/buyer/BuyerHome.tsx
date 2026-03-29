@@ -74,8 +74,8 @@ const BuyerHome = ({ coinBalance, onApprove, onReject, submissions }: BuyerHomeP
                 <tr className="text-xs text-muted-foreground font-medium">
                   <th className="text-left py-3 pr-4">Worker</th>
                   <th className="text-left py-3 pr-4">Task</th>
-                  <th className="text-left py-3 pr-4">Proof</th>
-                  <th className="text-left py-3 pr-4">Submitted</th>
+                  <th className="text-left py-3 pr-4 hidden md:table-cell">Proof</th>
+                  <th className="text-left py-3 pr-4 hidden sm:table-cell">Submitted</th>
                   <th className="text-right py-3">Actions</th>
                 </tr>
               </thead>
@@ -90,9 +90,9 @@ const BuyerHome = ({ coinBalance, onApprove, onReject, submissions }: BuyerHomeP
                         <span className="text-sm font-medium text-foreground">{s.workerName}</span>
                       </div>
                     </td>
-                    <td className="py-3 pr-4 text-sm text-foreground">{s.taskTitle}</td>
-                    <td className="py-3 pr-4 text-sm text-muted-foreground font-mono">{s.proofLink}</td>
-                    <td className="py-3 pr-4 text-sm text-muted-foreground">
+                    <td className="py-3 pr-4 text-sm text-foreground max-w-[140px] truncate">{s.taskTitle}</td>
+                    <td className="py-3 pr-4 text-sm text-muted-foreground font-mono hidden md:table-cell">{s.proofLink}</td>
+                    <td className="py-3 pr-4 text-sm text-muted-foreground hidden sm:table-cell">
                       {new Date(s.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </td>
                     <td className="py-3 text-right">

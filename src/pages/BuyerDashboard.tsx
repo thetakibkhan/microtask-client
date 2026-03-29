@@ -6,8 +6,11 @@ import MyTasks from '@/pages/buyer/MyTasks'
 import PurchaseCoin from '@/pages/buyer/PurchaseCoin'
 import PaymentHistory from '@/pages/buyer/PaymentHistory'
 import { mockTasks, mockSubmissions, mockPayments, INITIAL_COIN_BALANCE } from '@/mocks/buyer'
+import { mockNotifications, makeSubmissionApprovedNotification, makeSubmissionRejectedNotification, MOCK_BUYER_EMAIL } from '@/mocks/notifications'
 import { PaymentType, SubmissionStatus } from '@/types'
-import type { BuyerTaskFull, WorkerSubmission, PaymentRecord, CoinPackage } from '@/types'
+import type { BuyerTaskFull, WorkerSubmission, PaymentRecord, CoinPackage, AppNotification } from '@/types'
+
+const BUYER_NAME = 'David Kim'
 
 const BuyerDashboardPage = () => {
   const [activePage, setActivePage] = useState(0)
@@ -15,6 +18,17 @@ const BuyerDashboardPage = () => {
   const [submissions, setSubmissions] = useState<WorkerSubmission[]>(mockSubmissions)
   const [payments, setPayments] = useState<PaymentRecord[]>(mockPayments)
   const [coinBalance, setCoinBalance] = useState(INITIAL_COIN_BALANCE)
+  const [notifications, setNotifications] = useState<AppNotification[]>(
+    mockNotifications.filter((n) => n.toEmail === MOCK_BUYER_EMAIL)
+  )
+
+  const addNotification = (n: AppNotification) => {
+    setNotifications((prev) => [n, ...prev])
+  }
+
+  const handleMarkAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+  }
 
   const handleTaskCreated = (task: BuyerTaskFull) => {
     const cost = task.requiredWorkers * task.payableAmount
@@ -30,7 +44,6 @@ const BuyerDashboardPage = () => {
       date: new Date().toISOString().split('T')[0],
     }
     setPayments((prev) => [record, ...prev])
-
     setActivePage(2)
   }
 
@@ -60,15 +73,27 @@ const BuyerDashboardPage = () => {
   }
 
   const handleApprove = (submissionId: string) => {
+    const sub = submissions.find((s) => s.id === submissionId)
     setSubmissions((prev) =>
       prev.map((s) => (s.id === submissionId ? { ...s, status: SubmissionStatus.Approved } : s)),
     )
+    if (sub) {
+      addNotification(
+        makeSubmissionApprovedNotification(sub.taskId, BUYER_NAME, 0, sub.workerEmail)
+      )
+    }
   }
 
   const handleReject = (submissionId: string) => {
+    const sub = submissions.find((s) => s.id === submissionId)
     setSubmissions((prev) =>
       prev.map((s) => (s.id === submissionId ? { ...s, status: SubmissionStatus.Rejected } : s)),
     )
+    if (sub) {
+      addNotification(
+        makeSubmissionRejectedNotification(sub.taskId, BUYER_NAME, sub.workerEmail)
+      )
+    }
   }
 
   const handlePurchase = (pkg: CoinPackage) => {
@@ -119,6 +144,10 @@ const BuyerDashboardPage = () => {
       role="buyer"
       activeIndex={activePage}
       onNavigate={setActivePage}
+      notifications={notifications}
+      onMarkAllRead={handleMarkAllRead}
+      coinBalance={coinBalance}
+      userName={BUYER_NAME}
     >
       {pages[activePage]}
     </DashboardLayout>

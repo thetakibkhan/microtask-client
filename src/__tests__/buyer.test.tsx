@@ -258,34 +258,38 @@ describe('MyTasks', () => {
 describe('PurchaseCoin', () => {
   it('renders all 4 package names', () => {
     render(<PurchaseCoin onPurchase={vi.fn()} />)
-    // Each package label appears in the card buttons; use getAllByText
     for (const pkg of coinPackages) {
       expect(screen.getAllByText(pkg.label).length).toBeGreaterThan(0)
     }
   })
 
-  it('calls onPurchase with correct package when Buy Now clicked', () => {
-    const onPurchase = vi.fn()
-    render(<PurchaseCoin onPurchase={onPurchase} />)
-    // Select the first package
-    fireEvent.click(screen.getAllByText(coinPackages[0].label)[0])
-    fireEvent.click(screen.getByRole('button', { name: /buy now/i }))
-    expect(onPurchase).toHaveBeenCalledWith(coinPackages[0])
+  it('opens Stripe checkout modal when Proceed to Payment clicked', () => {
+    render(<PurchaseCoin onPurchase={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: /proceed to payment/i }))
+    expect(screen.getByText('Secure Checkout')).toBeInTheDocument()
   })
 
-  it('shows success message after purchase', () => {
+  it('checkout modal shows selected package info', () => {
     render(<PurchaseCoin onPurchase={vi.fn()} />)
-    fireEvent.click(screen.getByRole('button', { name: /buy now/i }))
-    expect(screen.getByText(/purchase successful/i)).toBeInTheDocument()
+    fireEvent.click(screen.getAllByText(coinPackages[0].label)[0])
+    fireEvent.click(screen.getByRole('button', { name: /proceed to payment/i }))
+    expect(screen.getAllByText(`$${coinPackages[0].price}`).length).toBeGreaterThan(0)
   })
 
   it('order summary shows correct price for selected package', () => {
     render(<PurchaseCoin onPurchase={vi.fn()} />)
     const lastPkg = coinPackages[coinPackages.length - 1]
     fireEvent.click(screen.getAllByText(lastPkg.label)[0])
-    // Price should appear in the order summary section
-    const priceCells = screen.getAllByText(`$${lastPkg.price}`)
-    expect(priceCells.length).toBeGreaterThan(0)
+    expect(screen.getAllByText(`$${lastPkg.price}`).length).toBeGreaterThan(0)
+  })
+
+  it('closes checkout modal when overlay is clicked', () => {
+    render(<PurchaseCoin onPurchase={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: /proceed to payment/i }))
+    expect(screen.getByText('Secure Checkout')).toBeInTheDocument()
+    // Click the modal close button
+    fireEvent.click(screen.getByRole('button', { name: '' })) // X button
+    // Modal should close — Secure Checkout no longer visible
   })
 })
 

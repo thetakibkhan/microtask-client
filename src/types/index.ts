@@ -152,3 +152,54 @@ export interface CoinPackage {
   coins: number
   price: number
 }
+
+export const WithdrawalStatus = {
+  Pending: 'pending',
+  Approved: 'approved',
+  Rejected: 'rejected',
+} as const
+export type WithdrawalStatus = (typeof WithdrawalStatus)[keyof typeof WithdrawalStatus]
+
+export const PaymentSystem = {
+  Stripe: 'Stripe',
+  Bkash: 'Bkash',
+  Rocket: 'Rocket',
+  Nagad: 'Nagad',
+  Other: 'Other',
+} as const
+export type PaymentSystem = (typeof PaymentSystem)[keyof typeof PaymentSystem]
+
+export interface AvailableTask {
+  id: string
+  title: string
+  detail: string
+  buyerName: string
+  buyerEmail: string
+  requiredWorkers: number
+  payableAmount: number
+  submissionInfo: string
+  completionDate: string
+}
+
+export interface WorkerOwnSubmission {
+  id: string
+  taskId: string
+  taskTitle: string
+  payableAmount: number
+  buyerName: string
+  submissionDetails: string
+  submittedAt: string
+  status: SubmissionStatus
+}
+
+export interface WithdrawalRecord {
+  id: string
+  workerEmail: string
+  workerName: string
+  withdrawalCoin: number
+  withdrawalAmount: number
+  paymentSystem: PaymentSystem
+  accountNumber: string
+  withdrawDate: string
+  status: WithdrawalStatus
+}

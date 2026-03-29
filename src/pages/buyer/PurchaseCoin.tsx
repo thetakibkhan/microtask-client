@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { CreditCard, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import StripeCheckoutModal from '@/components/StripeCheckoutModal'
 import { coinPackages } from '@/mocks/buyer'
 import type { CoinPackage } from '@/types'
 
@@ -11,15 +12,16 @@ interface PurchaseCoinProps {
 
 const PurchaseCoin = ({ onPurchase }: PurchaseCoinProps) => {
   const [selected, setSelected] = useState<string>(coinPackages[2].id)
+  const [checkingOut, setCheckingOut] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
 
   const selectedPkg = coinPackages.find((p) => p.id === selected)
 
-  const handleBuy = () => {
-    if (!selectedPkg) return
-    onPurchase(selectedPkg)
+  const handlePaymentSuccess = (pkg: CoinPackage) => {
+    setCheckingOut(false)
+    onPurchase(pkg)
     setConfirmed(true)
-    setTimeout(() => setConfirmed(false), 3000)
+    setTimeout(() => setConfirmed(false), 4000)
   }
 
   return (
@@ -34,7 +36,7 @@ const PurchaseCoin = ({ onPurchase }: PurchaseCoinProps) => {
           className="mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-success/10 border border-success/20 text-success text-sm font-medium"
         >
           <CheckCircle2 className="w-4 h-4" />
-          Purchase successful! Coins added to your balance.
+          Purchase successful! Coins have been added to your balance.
         </motion.div>
       )}
 
@@ -87,15 +89,23 @@ const PurchaseCoin = ({ onPurchase }: PurchaseCoinProps) => {
           </div>
         )}
         <Button
-          onClick={handleBuy}
+          onClick={() => setCheckingOut(true)}
           className="w-full h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold transition-all duration-200"
         >
-          <CreditCard className="w-4 h-4 mr-2" /> Buy Now
+          <CreditCard className="w-4 h-4 mr-2" /> Proceed to Payment
         </Button>
         <p className="text-xs text-muted-foreground text-center mt-3">
           Payments are simulated — no real money is charged.
         </p>
       </div>
+
+      {checkingOut && selectedPkg && (
+        <StripeCheckoutModal
+          pkg={selectedPkg}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setCheckingOut(false)}
+        />
+      )}
     </motion.div>
   )
 }

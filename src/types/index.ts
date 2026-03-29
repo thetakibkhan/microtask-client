@@ -203,3 +203,24 @@ export interface WithdrawalRecord {
   withdrawDate: string
   status: WithdrawalStatus
 }
+
+export interface AdminUser {
+  id: string
+  name: string
+  email: string
+  photoUrl: string
+  role: Role
+  coins: number
+}
+
+export interface AdminTask {
+  id: string
+  title: string
+  buyerName: string
+  buyerEmail: string
+  requiredWorkers: number
+  payableAmount: number
+  completionDate: string
+  status: TaskStatus
+  submissionsReceived: number
+}

@@ -11,19 +11,9 @@ import {
 import type { User } from 'firebase/auth'
 import { auth } from '@/firebase/firebase.config'
 import type { Role } from '@/types'
+import api from '@/lib/api'
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || undefined
-
-function getRoleKey(uid: string) {
-  return `taskOrbit_role_${uid}`
-}
-
-function resolveRole(uid: string, email: string | null): Role {
-  const stored = localStorage.getItem(getRoleKey(uid)) as Role | null
-  if (stored) return stored
-  if (ADMIN_EMAIL && email === ADMIN_EMAIL) return 'admin'
-  return 'worker'
-}
+const TOKEN_KEY = 'taskOrbit_token'
 
 interface AuthContextType {
   user: User | null
@@ -37,17 +27,32 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+// Exchange Firebase token for server JWT, returns role from DB
+async function exchangeToken(firebaseUser: User): Promise<Role> {
+  const firebaseToken = await firebaseUser.getIdToken()
+  const res = await api.post<{ token: string; role: Role }>('/api/auth', { firebaseToken })
+  localStorage.setItem(TOKEN_KEY, res.data.token)
+  return res.data.role
+}
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<Role | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser)
       if (currentUser) {
-        setRole(resolveRole(currentUser.uid, currentUser.email))
+        try {
+          const resolvedRole = await exchangeToken(currentUser)
+          setRole(resolvedRole)
+        } catch {
+          // User exists in Firebase but not yet in DB (mid-registration)
+          setRole(null)
+        }
       } else {
+        localStorage.removeItem(TOKEN_KEY)
         setRole(null)
       }
       setLoading(false)
@@ -64,16 +69,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   ): Promise<User> => {
     const result = await createUserWithEmailAndPassword(auth, email, password)
     await updateProfile(result.user, { displayName: name, photoURL: photoURL ?? null })
-    const resolvedRole: Role = ADMIN_EMAIL && email === ADMIN_EMAIL ? 'admin' : role
-    localStorage.setItem(getRoleKey(result.user.uid), resolvedRole)
-    setRole(resolvedRole)
+
+    // Register user in MongoDB and get server JWT
+    const firebaseToken = await result.user.getIdToken()
+    const res = await api.post<{ token: string; role: Role }>('/api/users', {
+      name,
+      email,
+      photoURL: photoURL ?? '',
+      role,
+      firebaseUID: result.user.uid,
+      firebaseToken,
+    })
+    localStorage.setItem(TOKEN_KEY, res.data.token)
+    setRole(res.data.role)
     setUser(result.user)
     return result.user
   }
 
   const loginWithEmail = async (email: string, password: string): Promise<User> => {
     const result = await signInWithEmailAndPassword(auth, email, password)
-    const resolvedRole = resolveRole(result.user.uid, result.user.email)
+    const resolvedRole = await exchangeToken(result.user)
     setRole(resolvedRole)
     return result.user
   }
@@ -81,17 +96,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const loginWithGoogle = async (): Promise<User> => {
     const provider = new GoogleAuthProvider()
     const result = await signInWithPopup(auth, provider)
-    const resolvedRole = resolveRole(result.user.uid, result.user.email)
-    // If no role stored yet (first Google login), default to worker
-    if (!localStorage.getItem(getRoleKey(result.user.uid))) {
-      localStorage.setItem(getRoleKey(result.user.uid), resolvedRole)
+
+    // Check if user already exists in DB
+    try {
+      const resolvedRole = await exchangeToken(result.user)
+      setRole(resolvedRole)
+    } catch {
+      // First-time Google login — register as worker
+      const firebaseToken = await result.user.getIdToken()
+      const res = await api.post<{ token: string; role: Role }>('/api/users', {
+        name: result.user.displayName ?? 'Google User',
+        email: result.user.email,
+        photoURL: result.user.photoURL ?? '',
+        role: 'worker' as Role,
+        firebaseUID: result.user.uid,
+        firebaseToken,
+      })
+      localStorage.setItem(TOKEN_KEY, res.data.token)
+      setRole(res.data.role)
     }
-    setRole(resolvedRole)
+
     return result.user
   }
 
   const logout = async (): Promise<void> => {
     await signOut(auth)
+    localStorage.removeItem(TOKEN_KEY)
     setUser(null)
     setRole(null)
   }

@@ -2,10 +2,11 @@ import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
   Zap, Home, ListTodo, Upload, CreditCard, Users,
-  ClipboardList, LogOut, Menu, X, Bell, Plus, History
+  ClipboardList, LogOut, Menu, X, Bell, Plus, History, UserCircle
 } from 'lucide-react'
 import type { Role, NavItem, AppNotification } from '@/types'
 import NotificationPanel from '@/components/NotificationPanel'
+import { useAuth } from '@/providers/AuthProvider'
 
 const navItems: Record<Role, NavItem[]> = {
   worker: [
@@ -57,6 +58,7 @@ const DashboardLayout = ({
   coinBalance,
   userName = 'John Doe',
 }: DashboardLayoutProps) => {
+  const { user } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [internalIdx, setInternalIdx] = useState(0)
   const [notifOpen, setNotifOpen] = useState(false)
@@ -101,8 +103,12 @@ const DashboardLayout = ({
               🪙 <span className="tabular-nums">{coinBalance.toLocaleString()}</span>
             </div>
           )}
-          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/30 ring-2 ring-primary/10">
-            <img src="https://i.pravatar.cc/150?img=12" alt="Profile" className="w-full h-full object-cover" />
+          <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/30 ring-2 ring-primary/10 flex items-center justify-center bg-accent">
+            {user?.photoURL ? (
+              <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <UserCircle className="w-6 h-6 text-muted-foreground" />
+            )}
           </div>
           <span className={`hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${roleColors[role]}`}>
             {roleLabels[role]}

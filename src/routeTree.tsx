@@ -35,7 +35,7 @@ const workerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/worker',
   component: () => (
-    <PrivateRoute>
+    <PrivateRoute requiredRole="worker">
       <WorkerDashboardPage />
     </PrivateRoute>
   ),
@@ -45,7 +45,7 @@ const buyerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/buyer',
   component: () => (
-    <PrivateRoute>
+    <PrivateRoute requiredRole="buyer">
       <BuyerDashboardPage />
     </PrivateRoute>
   ),
@@ -55,7 +55,7 @@ const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
   component: () => (
-    <PrivateRoute>
+    <PrivateRoute requiredRole="admin">
       <AdminDashboardPage />
     </PrivateRoute>
   ),

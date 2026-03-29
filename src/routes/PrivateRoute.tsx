@@ -1,12 +1,20 @@
 import { Navigate } from '@tanstack/react-router'
 import { useAuth } from '@/providers/AuthProvider'
+import type { Role } from '@/types'
 
 interface PrivateRouteProps {
   children: React.ReactNode
+  requiredRole?: Role
 }
 
-const PrivateRoute = ({ children }: PrivateRouteProps) => {
-  const { user, loading } = useAuth()
+const roleDashboard: Record<Role, string> = {
+  worker: '/worker',
+  buyer: '/buyer',
+  admin: '/admin',
+}
+
+const PrivateRoute = ({ children, requiredRole }: PrivateRouteProps) => {
+  const { user, role, loading } = useAuth()
 
   if (loading) {
     return (
@@ -18,6 +26,10 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
 
   if (!user) {
     return <Navigate to="/login" />
+  }
+
+  if (requiredRole && role && role !== requiredRole) {
+    return <Navigate to={roleDashboard[role]} />
   }
 
   return <>{children}</>

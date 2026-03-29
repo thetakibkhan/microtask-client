@@ -224,3 +224,12 @@ export interface AdminTask {
   status: TaskStatus
   submissionsReceived: number
 }
+
+export interface AppNotification {
+  id: string
+  message: string
+  toEmail: string
+  actionRoute: string
+  time: string
+  read: boolean
+}

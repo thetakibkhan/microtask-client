@@ -19,7 +19,7 @@ const BuyerHome = ({ coinBalance, tasks, onApprove, onReject, submissions }: Buy
   const totalTasks = tasks.length
   const activeTasks = tasks.filter((t) => t.status === 'active')
   const pendingWorkerSlots = activeTasks.reduce(
-    (sum, t) => sum + (t.requiredWorkers - t.submissionsReceived),
+    (sum, t) => sum + Math.max(0, t.requiredWorkers - t.submissionsReceived),
     0,
   )
   const totalSpentCoins = tasks.reduce(

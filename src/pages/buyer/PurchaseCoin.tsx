@@ -3,8 +3,13 @@ import { motion } from 'framer-motion'
 import { CreditCard, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import StripeCheckoutModal from '@/components/StripeCheckoutModal'
-import { coinPackages } from '@/mocks/buyer'
 import type { CoinPackage } from '@/types'
+
+const coinPackages: CoinPackage[] = [
+  { id: 'pkg_100', label: 'Starter', coins: 100, price: 1 },
+  { id: 'pkg_500', label: 'Standard', coins: 500, price: 5 },
+  { id: 'pkg_1000', label: 'Pro', coins: 1000, price: 10 },
+]
 
 interface PurchaseCoinProps {
   onPurchase: (pkg: CoinPackage) => void

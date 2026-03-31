@@ -6,13 +6,14 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import Modal from '@/components/ui/modal'
+import api from '@/lib/api'
 import type { BuyerTaskFull } from '@/types'
 import { TaskStatus } from '@/types'
 
 interface MyTasksProps {
   tasks: BuyerTaskFull[]
-  onUpdate: (updated: BuyerTaskFull) => void
-  onDelete: (taskId: string) => void
+  onUpdate: () => void
+  onDelete: () => void
 }
 
 const statusStyles: Record<TaskStatus, string> = {
@@ -46,11 +47,16 @@ const MyTasks = ({ tasks, onUpdate, onDelete }: MyTasksProps) => {
     setEditSubmissionInfo(task.submissionInfo)
   }
 
-  const handleUpdate = (e: React.FormEvent) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingTask) return
-    onUpdate({ ...editingTask, title: editTitle, detail: editDetail, submissionInfo: editSubmissionInfo })
+    await api.patch(`/api/tasks/${editingTask.id}`, {
+      title: editTitle,
+      detail: editDetail,
+      submissionInfo: editSubmissionInfo,
+    })
     setEditingTask(null)
+    onUpdate()
   }
 
   return (
@@ -178,7 +184,11 @@ const MyTasks = ({ tasks, onUpdate, onDelete }: MyTasksProps) => {
               </Button>
               <Button
                 className="flex-1 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                onClick={() => { onDelete(deleteTarget.id); setDeleteTarget(null) }}
+                onClick={async () => {
+                  await api.delete(`/api/tasks/${deleteTarget.id}`)
+                  setDeleteTarget(null)
+                  onDelete()
+                }}
               >
                 Delete
               </Button>

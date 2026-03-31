@@ -20,8 +20,8 @@ interface AuthContextType {
   role: Role | null
   loading: boolean
   registerWithEmail: (name: string, email: string, password: string, role: Role, photoURL?: string) => Promise<User>
-  loginWithEmail: (email: string, password: string) => Promise<User>
-  loginWithGoogle: () => Promise<User>
+  loginWithEmail: (email: string, password: string) => Promise<Role>
+  loginWithGoogle: () => Promise<Role>
   logout: () => Promise<void>
 }
 
@@ -88,14 +88,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return result.user
   }
 
-  const loginWithEmail = async (email: string, password: string): Promise<User> => {
+  const loginWithEmail = async (email: string, password: string): Promise<Role> => {
     const result = await signInWithEmailAndPassword(auth, email, password)
     const resolvedRole = await exchangeToken(result.user)
     setRole(resolvedRole)
-    return result.user
+    return resolvedRole
   }
 
-  const loginWithGoogle = async (): Promise<User> => {
+  const loginWithGoogle = async (): Promise<Role> => {
     const provider = new GoogleAuthProvider()
     const result = await signInWithPopup(auth, provider)
 
@@ -103,6 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const resolvedRole = await exchangeToken(result.user)
       setRole(resolvedRole)
+      return resolvedRole
     } catch {
       // First-time Google login — register as worker
       const firebaseToken = await result.user.getIdToken()
@@ -110,15 +111,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         name: result.user.displayName ?? 'Google User',
         email: result.user.email,
         photoURL: result.user.photoURL ?? '',
-        role: 'worker' as Role,
+        role: 'worker',
         firebaseUID: result.user.uid,
         firebaseToken,
       })
       localStorage.setItem(TOKEN_KEY, res.data.token)
       setRole(res.data.role)
+      return res.data.role
     }
-
-    return result.user
   }
 
   const logout = async (): Promise<void> => {

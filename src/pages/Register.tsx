@@ -44,10 +44,13 @@ const RegisterPage = () => {
       // After registration, redirect based on role
       navigate({ to: role === 'worker' ? '/worker' : '/buyer' })
     } catch (err) {
+      console.error('Registration error:', err)
       if (err instanceof Error && err.message.includes('email-already-in-use')) {
         setError('An account with this email already exists.')
+      } else if (err instanceof Error && err.message.includes('auth/')) {
+        setError(err.message)
       } else {
-        setError('Registration failed. Please try again.')
+        setError('Could not connect to server. Make sure the server is running.')
       }
     } finally {
       setLoading(false)

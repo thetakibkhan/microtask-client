@@ -10,7 +10,7 @@ import { useAuth } from '@/providers/AuthProvider'
 const roleDashboard = { worker: '/worker', buyer: '/buyer', admin: '/admin' } as const
 
 const LoginPage = () => {
-  const { loginWithEmail, loginWithGoogle, role } = useAuth()
+  const { loginWithEmail, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
@@ -23,10 +23,15 @@ const LoginPage = () => {
     setError('')
     setLoading(true)
     try {
-      await loginWithEmail(email, password)
-      navigate({ to: role ? roleDashboard[role] : '/worker' })
-    } catch {
-      setError('Invalid email or password. Please try again.')
+      const resolvedRole = await loginWithEmail(email, password)
+      navigate({ to: roleDashboard[resolvedRole] })
+    } catch (err) {
+      console.error('Login error:', err)
+      if (err instanceof Error && err.message.includes('auth/')) {
+        setError('Invalid email or password.')
+      } else {
+        setError('Could not connect to server. Make sure the server is running.')
+      }
     } finally {
       setLoading(false)
     }
@@ -36,10 +41,17 @@ const LoginPage = () => {
     setError('')
     setLoading(true)
     try {
-      await loginWithGoogle()
-      navigate({ to: role ? roleDashboard[role] : '/worker' })
-    } catch {
-      setError('Google sign-in failed. Please try again.')
+      const resolvedRole = await loginWithGoogle()
+      navigate({ to: roleDashboard[resolvedRole] })
+    } catch (err) {
+      console.error('Google login error:', err)
+      if (err instanceof Error && err.message.includes('popup-closed')) {
+        setError('Sign-in cancelled.')
+      } else if (err instanceof Error && err.message.includes('auth/')) {
+        setError('Google sign-in failed.')
+      } else {
+        setError('Could not connect to server. Make sure the server is running.')
+      }
     } finally {
       setLoading(false)
     }

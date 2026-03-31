@@ -134,7 +134,7 @@ export interface WorkerSubmission {
   workerName: string
   workerEmail: string
   submittedAt: string
-  proofLink: string
+  submissionDetails: string
   status: SubmissionStatus
 }
 

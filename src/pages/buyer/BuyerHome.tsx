@@ -2,27 +2,27 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ClipboardList, DollarSign, Users, CheckCircle2, XCircle, Eye } from 'lucide-react'
 import { SubmissionStatus } from '@/types'
-import type { WorkerSubmission } from '@/types'
-import { mockTasks } from '@/mocks/buyer'
+import type { WorkerSubmission, BuyerTaskFull } from '@/types'
 import Modal from '@/components/ui/modal'
 
 interface BuyerHomeProps {
   coinBalance: number
+  tasks: BuyerTaskFull[]
   onApprove: (submissionId: string) => void
   onReject: (submissionId: string) => void
   submissions: WorkerSubmission[]
 }
 
-const BuyerHome = ({ coinBalance, onApprove, onReject, submissions }: BuyerHomeProps) => {
+const BuyerHome = ({ coinBalance, tasks, onApprove, onReject, submissions }: BuyerHomeProps) => {
   const [viewSubmission, setViewSubmission] = useState<WorkerSubmission | null>(null)
 
-  const totalTasks = mockTasks.length
-  const activeTasks = mockTasks.filter((t) => t.status === 'active')
+  const totalTasks = tasks.length
+  const activeTasks = tasks.filter((t) => t.status === 'active')
   const pendingWorkerSlots = activeTasks.reduce(
     (sum, t) => sum + (t.requiredWorkers - t.submissionsReceived),
     0,
   )
-  const totalSpentCoins = mockTasks.reduce(
+  const totalSpentCoins = tasks.reduce(
     (sum, t) => sum + t.requiredWorkers * t.payableAmount,
     0,
   )
@@ -91,7 +91,7 @@ const BuyerHome = ({ coinBalance, onApprove, onReject, submissions }: BuyerHomeP
                       </div>
                     </td>
                     <td className="py-3 pr-4 text-sm text-foreground max-w-[140px] truncate">{s.taskTitle}</td>
-                    <td className="py-3 pr-4 text-sm text-muted-foreground font-mono hidden md:table-cell">{s.proofLink}</td>
+                    <td className="py-3 pr-4 text-sm text-muted-foreground hidden md:table-cell truncate max-w-[160px]">{s.submissionDetails}</td>
                     <td className="py-3 pr-4 text-sm text-muted-foreground hidden sm:table-cell">
                       {new Date(s.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </td>
@@ -138,8 +138,8 @@ const BuyerHome = ({ coinBalance, onApprove, onReject, submissions }: BuyerHomeP
               <span className="text-foreground">{viewSubmission.workerEmail}</span>
               <span className="text-muted-foreground">Task</span>
               <span className="text-foreground">{viewSubmission.taskTitle}</span>
-              <span className="text-muted-foreground">Proof file</span>
-              <span className="text-primary font-mono">{viewSubmission.proofLink}</span>
+              <span className="text-muted-foreground">Submission</span>
+              <span className="text-foreground">{viewSubmission.submissionDetails}</span>
               <span className="text-muted-foreground">Submitted at</span>
               <span className="text-foreground">{new Date(viewSubmission.submittedAt).toLocaleString()}</span>
             </div>

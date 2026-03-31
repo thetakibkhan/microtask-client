@@ -18,6 +18,8 @@ export const PaymentType = {
   Purchase: 'purchase',
   Refund: 'refund',
   TaskPayment: 'task_payment',
+  Earnings: 'earnings',
+  Withdrawal: 'withdrawal',
 } as const
 export type PaymentType = (typeof PaymentType)[keyof typeof PaymentType]
 

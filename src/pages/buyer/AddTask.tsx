@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import ImageUploadField from '@/components/ImageUploadField'
-import type { BuyerTaskFull } from '@/types'
-import { TaskStatus } from '@/types'
+import api from '@/lib/api'
 
 interface AddTaskProps {
   coinBalance: number
-  onTaskCreated: (task: BuyerTaskFull) => void
+  onTaskCreated: () => void
   onGoToPurchase: () => void
 }
 
@@ -29,7 +28,7 @@ const AddTask = ({ coinBalance, onTaskCreated, onGoToPurchase }: AddTaskProps) =
   const amount = Number(payableAmount) || 0
   const totalCost = workers * amount
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setCoinError(false)
 
@@ -38,8 +37,7 @@ const AddTask = ({ coinBalance, onTaskCreated, onGoToPurchase }: AddTaskProps) =
       return
     }
 
-    const newTask: BuyerTaskFull = {
-      id: `t_${Date.now()}`,
+    await api.post('/api/tasks', {
       title,
       detail,
       imageUrl,
@@ -47,11 +45,9 @@ const AddTask = ({ coinBalance, onTaskCreated, onGoToPurchase }: AddTaskProps) =
       payableAmount: amount,
       submissionInfo,
       completionDate,
-      status: TaskStatus.Active,
-      submissionsReceived: 0,
-    }
+    })
 
-    onTaskCreated(newTask)
+    onTaskCreated()
 
     setTitle('')
     setDetail('')

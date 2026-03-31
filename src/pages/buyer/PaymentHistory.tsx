@@ -11,12 +11,16 @@ const typeStyles: Record<PaymentType, string> = {
   [PaymentType.Purchase]: 'bg-primary/15 text-primary border border-primary/20',
   [PaymentType.Refund]: 'bg-success/15 text-success border border-success/20',
   [PaymentType.TaskPayment]: 'bg-warning/15 text-warning border border-warning/20',
+  [PaymentType.Earnings]: 'bg-success/15 text-success border border-success/20',
+  [PaymentType.Withdrawal]: 'bg-destructive/15 text-destructive border border-destructive/20',
 }
 
 const typeLabel: Record<PaymentType, string> = {
   [PaymentType.Purchase]: 'Purchase',
   [PaymentType.Refund]: 'Refund',
   [PaymentType.TaskPayment]: 'Task',
+  [PaymentType.Earnings]: 'Earnings',
+  [PaymentType.Withdrawal]: 'Withdrawal',
 }
 
 const TypeIcon = ({ type }: { type: PaymentType }) => {

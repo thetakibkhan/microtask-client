@@ -1,118 +1,167 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import DashboardLayout from '@/components/DashboardLayout'
 import BuyerHome from '@/pages/buyer/BuyerHome'
 import AddTask from '@/pages/buyer/AddTask'
 import MyTasks from '@/pages/buyer/MyTasks'
 import PurchaseCoin from '@/pages/buyer/PurchaseCoin'
 import PaymentHistory from '@/pages/buyer/PaymentHistory'
-import { mockTasks, mockSubmissions, mockPayments, INITIAL_COIN_BALANCE } from '@/mocks/buyer'
-import { mockNotifications, makeSubmissionApprovedNotification, makeSubmissionRejectedNotification, MOCK_BUYER_EMAIL } from '@/mocks/notifications'
-import { PaymentType, SubmissionStatus } from '@/types'
+import api from '@/lib/api'
+import { SubmissionStatus, TaskStatus, PaymentType } from '@/types'
 import type { BuyerTaskFull, WorkerSubmission, PaymentRecord, CoinPackage, AppNotification } from '@/types'
+import { useAuth } from '@/providers/AuthProvider'
 
-const BUYER_NAME = 'David Kim'
+interface ApiTask {
+  _id: string
+  title: string
+  detail: string
+  imageUrl: string
+  requiredWorkers: number
+  payableAmount: number
+  submissionInfo: string
+  completionDate: string
+  status: string
+  submissionsReceived: number
+}
+
+interface ApiSubmission {
+  _id: string
+  taskId: string
+  taskTitle: string
+  workerName: string
+  workerEmail: string
+  submittedAt: string
+  submissionDetails: string
+  status: string
+}
+
+interface ApiPayment {
+  _id: string
+  type: string
+  description: string
+  coins: number
+  amount: number
+  date: string
+}
+
+interface ApiNotification {
+  _id: string
+  message: string
+  recipientEmail: string
+  read: boolean
+  createdAt: string
+}
+
+interface ApiUser {
+  name: string
+  coins: number
+}
+
+function mapTask(t: ApiTask): BuyerTaskFull {
+  return {
+    id: String(t._id),
+    title: t.title,
+    detail: t.detail,
+    imageUrl: t.imageUrl,
+    requiredWorkers: t.requiredWorkers,
+    payableAmount: t.payableAmount,
+    submissionInfo: t.submissionInfo,
+    completionDate: t.completionDate,
+    status: t.status as TaskStatus,
+    submissionsReceived: t.submissionsReceived,
+  }
+}
+
+function mapSubmission(s: ApiSubmission): WorkerSubmission {
+  return {
+    id: String(s._id),
+    taskId: s.taskId,
+    taskTitle: s.taskTitle,
+    workerName: s.workerName ?? s.workerEmail,
+    workerEmail: s.workerEmail,
+    submittedAt: s.submittedAt,
+    submissionDetails: s.submissionDetails,
+    status: s.status as SubmissionStatus,
+  }
+}
+
+function mapPayment(p: ApiPayment): PaymentRecord {
+  return {
+    id: String(p._id),
+    type: p.type as PaymentType,
+    description: p.description,
+    amount: p.amount,
+    coins: p.coins,
+    date: new Date(p.date).toISOString().split('T')[0],
+  }
+}
+
+function mapNotification(n: ApiNotification): AppNotification {
+  return {
+    id: String(n._id),
+    message: n.message,
+    toEmail: n.recipientEmail,
+    actionRoute: '',
+    time: n.createdAt,
+    read: n.read,
+  }
+}
 
 const BuyerDashboardPage = () => {
+  const { user } = useAuth()
   const [activePage, setActivePage] = useState(0)
-  const [tasks, setTasks] = useState<BuyerTaskFull[]>(mockTasks)
-  const [submissions, setSubmissions] = useState<WorkerSubmission[]>(mockSubmissions)
-  const [payments, setPayments] = useState<PaymentRecord[]>(mockPayments)
-  const [coinBalance, setCoinBalance] = useState(INITIAL_COIN_BALANCE)
-  const [notifications, setNotifications] = useState<AppNotification[]>(
-    mockNotifications.filter((n) => n.toEmail === MOCK_BUYER_EMAIL)
-  )
+  const [tasks, setTasks] = useState<BuyerTaskFull[]>([])
+  const [submissions, setSubmissions] = useState<WorkerSubmission[]>([])
+  const [payments, setPayments] = useState<PaymentRecord[]>([])
+  const [notifications, setNotifications] = useState<AppNotification[]>([])
+  const [coinBalance, setCoinBalance] = useState(0)
+  const [userName, setUserName] = useState('')
 
-  const addNotification = (n: AppNotification) => {
-    setNotifications((prev) => [n, ...prev])
-  }
+  const fetchAll = useCallback(async () => {
+    const [userRes, tasksRes, subsRes, paymentsRes, notifsRes] = await Promise.all([
+      api.get<ApiUser>('/api/users/me'),
+      api.get<ApiTask[]>('/api/tasks/mine'),
+      api.get<ApiSubmission[]>('/api/submissions/pending'),
+      api.get<ApiPayment[]>('/api/payments/history'),
+      api.get<ApiNotification[]>('/api/notifications'),
+    ])
 
-  const handleMarkAllRead = () => {
+    setCoinBalance(userRes.data.coins)
+    setUserName(userRes.data.name)
+    setTasks(tasksRes.data.map(mapTask))
+    setSubmissions(subsRes.data.map(mapSubmission))
+    setPayments(paymentsRes.data.map(mapPayment))
+    setNotifications(notifsRes.data.map(mapNotification))
+  }, [])
+
+  useEffect(() => {
+    fetchAll()
+  }, [fetchAll])
+
+  const handleMarkAllRead = async () => {
+    await api.patch('/api/notifications/read-all')
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
   }
 
-  const handleTaskCreated = (task: BuyerTaskFull) => {
-    const cost = task.requiredWorkers * task.payableAmount
-    setTasks((prev) => [task, ...prev])
-    setCoinBalance((prev) => prev - cost)
-
-    const record: PaymentRecord = {
-      id: `p_${Date.now()}`,
-      type: PaymentType.TaskPayment,
-      description: `Task created: ${task.title}`,
-      amount: 0,
-      coins: -cost,
-      date: new Date().toISOString().split('T')[0],
-    }
-    setPayments((prev) => [record, ...prev])
-    setActivePage(2)
+  const handleApprove = async (submissionId: string) => {
+    await api.patch(`/api/submissions/${submissionId}/approve`)
+    await fetchAll()
   }
 
-  const handleTaskUpdate = (updated: BuyerTaskFull) => {
-    setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))
+  const handleReject = async (submissionId: string) => {
+    await api.patch(`/api/submissions/${submissionId}/reject`)
+    await fetchAll()
   }
 
-  const handleTaskDelete = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId)
-    if (!task) return
-
-    const refund = (task.requiredWorkers - task.submissionsReceived) * task.payableAmount
-    setTasks((prev) => prev.filter((t) => t.id !== taskId))
-
-    if (refund > 0) {
-      setCoinBalance((prev) => prev + refund)
-      const record: PaymentRecord = {
-        id: `p_${Date.now()}`,
-        type: PaymentType.Refund,
-        description: `Refund: Deleted task (${task.title})`,
-        amount: 0,
-        coins: refund,
-        date: new Date().toISOString().split('T')[0],
-      }
-      setPayments((prev) => [record, ...prev])
-    }
-  }
-
-  const handleApprove = (submissionId: string) => {
-    const sub = submissions.find((s) => s.id === submissionId)
-    setSubmissions((prev) =>
-      prev.map((s) => (s.id === submissionId ? { ...s, status: SubmissionStatus.Approved } : s)),
-    )
-    if (sub) {
-      addNotification(
-        makeSubmissionApprovedNotification(sub.taskId, BUYER_NAME, 0, sub.workerEmail)
-      )
-    }
-  }
-
-  const handleReject = (submissionId: string) => {
-    const sub = submissions.find((s) => s.id === submissionId)
-    setSubmissions((prev) =>
-      prev.map((s) => (s.id === submissionId ? { ...s, status: SubmissionStatus.Rejected } : s)),
-    )
-    if (sub) {
-      addNotification(
-        makeSubmissionRejectedNotification(sub.taskId, BUYER_NAME, sub.workerEmail)
-      )
-    }
-  }
-
+  // Stripe not configured yet — mock purchase updates coin balance locally
   const handlePurchase = (pkg: CoinPackage) => {
     setCoinBalance((prev) => prev + pkg.coins)
-    const record: PaymentRecord = {
-      id: `p_${Date.now()}`,
-      type: PaymentType.Purchase,
-      description: `Purchased ${pkg.label} package`,
-      amount: pkg.price,
-      coins: pkg.coins,
-      date: new Date().toISOString().split('T')[0],
-    }
-    setPayments((prev) => [record, ...prev])
   }
 
   const pages = [
     <BuyerHome
       key="home"
       coinBalance={coinBalance}
+      tasks={tasks}
       submissions={submissions}
       onApprove={handleApprove}
       onReject={handleReject}
@@ -120,14 +169,14 @@ const BuyerDashboardPage = () => {
     <AddTask
       key="add"
       coinBalance={coinBalance}
-      onTaskCreated={handleTaskCreated}
+      onTaskCreated={fetchAll}
       onGoToPurchase={() => setActivePage(3)}
     />,
     <MyTasks
       key="tasks"
       tasks={tasks}
-      onUpdate={handleTaskUpdate}
-      onDelete={handleTaskDelete}
+      onUpdate={fetchAll}
+      onDelete={fetchAll}
     />,
     <PurchaseCoin
       key="purchase"
@@ -147,7 +196,7 @@ const BuyerDashboardPage = () => {
       notifications={notifications}
       onMarkAllRead={handleMarkAllRead}
       coinBalance={coinBalance}
-      userName={BUYER_NAME}
+      userName={userName || user?.displayName || ''}
     >
       {pages[activePage]}
     </DashboardLayout>

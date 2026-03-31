@@ -74,7 +74,7 @@ export const mockSubmissions: WorkerSubmission[] = [
     workerName: 'Ryan M.',
     workerEmail: 'ryan@example.com',
     submittedAt: '2026-03-29T10:05:00Z',
-    proofLink: 'screenshot_042.png',
+    submissionDetails: 'screenshot_042.png',
     status: SubmissionStatus.Pending,
   },
   {
@@ -84,7 +84,7 @@ export const mockSubmissions: WorkerSubmission[] = [
     workerName: 'Omar H.',
     workerEmail: 'omar@example.com',
     submittedAt: '2026-03-29T09:48:00Z',
-    proofLink: 'analysis_report.csv',
+    submissionDetails: 'analysis_report.csv',
     status: SubmissionStatus.Pending,
   },
   {
@@ -94,7 +94,7 @@ export const mockSubmissions: WorkerSubmission[] = [
     workerName: 'Yuki T.',
     workerEmail: 'yuki@example.com',
     submittedAt: '2026-03-29T09:32:00Z',
-    proofLink: 'contacts_batch_18.xlsx',
+    submissionDetails: 'contacts_batch_18.xlsx',
     status: SubmissionStatus.Approved,
   },
   {
@@ -104,7 +104,7 @@ export const mockSubmissions: WorkerSubmission[] = [
     workerName: 'Marcus J.',
     workerEmail: 'marcus@example.com',
     submittedAt: '2026-03-29T09:15:00Z',
-    proofLink: 'audio_labels_89.json',
+    submissionDetails: 'audio_labels_89.json',
     status: SubmissionStatus.Pending,
   },
   {
@@ -114,7 +114,7 @@ export const mockSubmissions: WorkerSubmission[] = [
     workerName: 'Aisha K.',
     workerEmail: 'aisha@example.com',
     submittedAt: '2026-03-28T18:00:00Z',
-    proofLink: 'classify_vehicles_12.png',
+    submissionDetails: 'classify_vehicles_12.png',
     status: SubmissionStatus.Rejected,
   },
 ]
@@ -163,8 +163,7 @@ export const mockPayments: PaymentRecord[] = [
 ]
 
 export const coinPackages: CoinPackage[] = [
-  { id: 'pkg1', label: 'Starter', coins: 10, price: 1 },
-  { id: 'pkg2', label: 'Basic', coins: 150, price: 10 },
-  { id: 'pkg3', label: 'Growth', coins: 500, price: 20 },
-  { id: 'pkg4', label: 'Scale', coins: 1000, price: 35 },
+  { id: 'pkg_100', label: 'Starter', coins: 100, price: 1 },
+  { id: 'pkg_500', label: 'Standard', coins: 500, price: 5 },
+  { id: 'pkg_1000', label: 'Pro', coins: 1000, price: 10 },
 ]

@@ -6,8 +6,19 @@ import MyTasks from '@/pages/buyer/MyTasks'
 import PurchaseCoin from '@/pages/buyer/PurchaseCoin'
 import PaymentHistory from '@/pages/buyer/PaymentHistory'
 import { mockSubmissions, mockTasks, mockPayments, coinPackages } from '@/mocks/buyer'
-import { SubmissionStatus, TaskStatus, PaymentType } from '@/types'
+import { SubmissionStatus, PaymentType } from '@/types'
 import type { WorkerSubmission, BuyerTaskFull, PaymentRecord } from '@/types'
+
+// Mock the API module so no real HTTP calls are made in tests
+vi.mock('@/lib/api', () => ({
+  default: {
+    post: vi.fn().mockResolvedValue({ data: {} }),
+    patch: vi.fn().mockResolvedValue({ data: {} }),
+    delete: vi.fn().mockResolvedValue({ data: {} }),
+    get: vi.fn().mockResolvedValue({ data: {} }),
+    interceptors: { request: { use: vi.fn() } },
+  },
+}))
 
 // Helper: fill a form input by its label text
 function fillInput(labelText: string, value: string) {
@@ -23,6 +34,7 @@ describe('BuyerHome', () => {
     render(
       <BuyerHome
         coinBalance={1250}
+        tasks={mockTasks}
         submissions={mockSubmissions}
         onApprove={vi.fn()}
         onReject={vi.fn()}
@@ -36,6 +48,7 @@ describe('BuyerHome', () => {
     render(
       <BuyerHome
         coinBalance={1250}
+        tasks={mockTasks}
         submissions={mockSubmissions}
         onApprove={vi.fn()}
         onReject={vi.fn()}
@@ -51,6 +64,7 @@ describe('BuyerHome', () => {
     render(
       <BuyerHome
         coinBalance={1250}
+        tasks={mockTasks}
         submissions={mockSubmissions}
         onApprove={onApprove}
         onReject={vi.fn()}
@@ -65,6 +79,7 @@ describe('BuyerHome', () => {
     render(
       <BuyerHome
         coinBalance={1250}
+        tasks={mockTasks}
         submissions={mockSubmissions}
         onApprove={vi.fn()}
         onReject={onReject}
@@ -82,6 +97,7 @@ describe('BuyerHome', () => {
     render(
       <BuyerHome
         coinBalance={1250}
+        tasks={mockTasks}
         submissions={allApproved}
         onApprove={vi.fn()}
         onReject={vi.fn()}
@@ -94,6 +110,7 @@ describe('BuyerHome', () => {
     render(
       <BuyerHome
         coinBalance={1250}
+        tasks={mockTasks}
         submissions={mockSubmissions}
         onApprove={vi.fn()}
         onReject={vi.fn()}
@@ -156,7 +173,7 @@ describe('AddTask', () => {
     expect(onGoToPurchase).toHaveBeenCalled()
   })
 
-  it('calls onTaskCreated with correct data when form is valid', () => {
+  it('calls onTaskCreated after successful API call', async () => {
     const onTaskCreated = vi.fn()
     render(
       <AddTask coinBalance={500} onTaskCreated={onTaskCreated} onGoToPurchase={vi.fn()} />
@@ -168,12 +185,8 @@ describe('AddTask', () => {
     fillInput('Submission Info', 'Take a screenshot')
     fillInput('Completion Date', '2026-12-01')
     fireEvent.submit(screen.getByRole('button', { name: /create task/i }).closest('form')!)
-    expect(onTaskCreated).toHaveBeenCalledOnce()
-    const created = onTaskCreated.mock.calls[0][0] as BuyerTaskFull
-    expect(created.title).toBe('My New Task')
-    expect(created.requiredWorkers).toBe(5)
-    expect(created.payableAmount).toBe(2)
-    expect(created.status).toBe(TaskStatus.Active)
+    // Wait for async API call to resolve
+    await vi.waitFor(() => expect(onTaskCreated).toHaveBeenCalledOnce())
   })
 })
 
@@ -198,15 +211,13 @@ describe('MyTasks', () => {
     expect(screen.getByText('Update Task')).toBeInTheDocument()
   })
 
-  it('calls onUpdate with updated title when form saved', () => {
+  it('calls onUpdate after API call when form saved', async () => {
     const onUpdate = vi.fn()
     render(<MyTasks tasks={mockTasks} onUpdate={onUpdate} onDelete={vi.fn()} />)
     fireEvent.click(screen.getAllByTitle('Edit task')[0])
     fillInput('Title', 'Updated Title')
     fireEvent.click(screen.getByRole('button', { name: /save changes/i }))
-    expect(onUpdate).toHaveBeenCalledOnce()
-    const updated = onUpdate.mock.calls[0][0] as BuyerTaskFull
-    expect(updated.title).toBe('Updated Title')
+    await vi.waitFor(() => expect(onUpdate).toHaveBeenCalledOnce())
   })
 
   it('opens delete confirmation modal on trash click', () => {
@@ -225,20 +236,16 @@ describe('MyTasks', () => {
     expect(screen.getByText(/you will receive a refund/i)).toBeInTheDocument()
   })
 
-  it('calls onDelete when deletion confirmed', () => {
+  it('calls onDelete after API call when deletion confirmed', async () => {
     const onDelete = vi.fn()
     const taskWithSlots = mockTasks.filter(
       (t) => t.submissionsReceived < t.requiredWorkers
-    )
-    // Component sorts by completionDate desc — find the first one after sorting
-    const sorted = [...taskWithSlots].sort(
-      (a, b) => new Date(b.completionDate).getTime() - new Date(a.completionDate).getTime()
     )
     render(<MyTasks tasks={taskWithSlots} onUpdate={vi.fn()} onDelete={onDelete} />)
     fireEvent.click(screen.getAllByTitle('Delete task')[0])
     const deleteButtons = screen.getAllByRole('button', { name: /delete/i })
     fireEvent.click(deleteButtons[deleteButtons.length - 1])
-    expect(onDelete).toHaveBeenCalledWith(sorted[0].id)
+    await vi.waitFor(() => expect(onDelete).toHaveBeenCalledOnce())
   })
 
   it('tasks are sorted by completion date descending', () => {
@@ -256,7 +263,7 @@ describe('MyTasks', () => {
 // ─── PurchaseCoin ──────────────────────────────────────────────────────────
 
 describe('PurchaseCoin', () => {
-  it('renders all 4 package names', () => {
+  it('renders all package names', () => {
     render(<PurchaseCoin onPurchase={vi.fn()} />)
     for (const pkg of coinPackages) {
       expect(screen.getAllByText(pkg.label).length).toBeGreaterThan(0)

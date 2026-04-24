@@ -253,9 +253,7 @@ const FeaturedTasks = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.08 }}
-            className={`p-5 bg-card rounded-2xl orbit-shadow card-hover flex flex-col ${
-              i === 0 ? 'lg:col-span-2' : ''
-            }`}
+            className="p-5 bg-card rounded-2xl orbit-shadow card-hover flex flex-col"
           >
             <div className="flex items-start justify-between mb-2">
               <h4 className="font-semibold text-foreground">{t.title}</h4>

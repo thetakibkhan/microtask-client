@@ -1,6 +1,7 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { useAuth } from '@/providers/AuthProvider'
 import { ArrowRight, UserPlus, MousePointerClick, Coins, Clock, Users, CheckCircle2, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Navbar from '@/components/Navbar'
@@ -332,17 +333,32 @@ const Testimonials = () => (
 
 /* ── Page ─────────────────────────────────────────────── */
 
-const IndexPage = () => (
-  <div className="min-h-screen bg-background">
-    <Navbar isLoggedIn={false} />
-    <Hero />
-    <TopEarners />
-    <HowItWorks />
-    <PlatformStats />
-    <FeaturedTasks />
-    <Testimonials />
-    <Footer />
-  </div>
-)
+const roleDashboard = { worker: '/worker', buyer: '/buyer', admin: '/admin' } as const
+
+const IndexPage = () => {
+  const { user, role, loading } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!loading && user && role) {
+      void navigate({ to: roleDashboard[role] })
+    }
+  }, [user, role, loading, navigate])
+
+  if (loading || (user && role)) return null
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar isLoggedIn={false} />
+      <Hero />
+      <TopEarners />
+      <HowItWorks />
+      <PlatformStats />
+      <FeaturedTasks />
+      <Testimonials />
+      <Footer />
+    </div>
+  )
+}
 
 export default IndexPage

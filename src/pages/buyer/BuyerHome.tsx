@@ -139,7 +139,13 @@ const BuyerHome = ({ coinBalance, tasks, onApprove, onReject, submissions }: Buy
               <span className="text-muted-foreground">Task</span>
               <span className="text-foreground">{viewSubmission.taskTitle}</span>
               <span className="text-muted-foreground">Submission</span>
-              <span className="text-foreground">{viewSubmission.submissionDetails}</span>
+              <span className="text-foreground break-all">
+                {/^https?:\/\//.test(viewSubmission.submissionDetails) ? (
+                  <a href={viewSubmission.submissionDetails} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:opacity-80">
+                    {viewSubmission.submissionDetails}
+                  </a>
+                ) : viewSubmission.submissionDetails}
+              </span>
               <span className="text-muted-foreground">Submitted at</span>
               <span className="text-foreground">{new Date(viewSubmission.submittedAt).toLocaleString()}</span>
             </div>

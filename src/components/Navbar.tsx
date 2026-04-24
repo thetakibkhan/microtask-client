@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { Zap, Menu, X, Code2, LogOut } from 'lucide-react'
+import { Zap, Menu, X, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface NavbarProps {
@@ -36,12 +36,6 @@ const Navbar = ({ isLoggedIn = false, coinBalance = 150, userAvatar }: NavbarPro
 
         {/* Desktop right side */}
         <div className="hidden md:flex items-center gap-3">
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-            <Button variant="outline" size="sm" className="rounded-lg gap-2 border-border/60 hover:border-primary/40 transition-all duration-200">
-              <Code2 className="w-4 h-4" /> Join as Developer
-            </Button>
-          </a>
-
           {isLoggedIn ? (
             <>
               <Link to="/worker">
@@ -87,12 +81,6 @@ const Navbar = ({ isLoggedIn = false, coinBalance = 150, userAvatar }: NavbarPro
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl px-4 py-4 space-y-3">
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="block">
-            <Button variant="outline" size="sm" className="w-full rounded-lg gap-2">
-              <Code2 className="w-4 h-4" /> Join as Developer
-            </Button>
-          </a>
-
           {isLoggedIn ? (
             <>
               <Link to="/worker" className="block" onClick={() => setMobileOpen(false)}>
